@@ -516,17 +516,13 @@ class Settings(NamedTuple):
     token: str
     chat_id: Union[int, str]
 
-
 def get_config_settings(conf=None) -> Settings:
-    conf = expanduser(conf) if conf else get_config_path()
-    config = configparser.ConfigParser()
-    if not config.read(conf) or not config.has_section("telegram"):
-        raise ConfigError("Config not found")
-    missing_options = set(["token", "chat_id"]) - set(config.options("telegram"))
-    if len(missing_options) > 0:
-        raise ConfigError("Missing options in config: {}".format(", ".join(missing_options)))
-    token = config.get("telegram", "token")
-    chat_id = config.get("telegram", "chat_id")
+
+    token = conf.get('token', None)
+    chat_id = conf.get('chat_id', None)
+    if token is None \
+            or chat_id is None:
+        raise Exception('Не нашёл token или chat_id при отправке алёрта. Проверь конфиг!')
     if chat_id.isdigit():
         chat_id = int(chat_id)
     return Settings(token=token, chat_id=chat_id)
